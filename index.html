@@ -1,282 +1,208 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Coomosant — Domicilios, Tu Mejor Opción · Santa Marta</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Coomosant — Domicilios con identidad verificada · Santa Marta</title>
 
-  <!-- SEO meta tags -->
-  <meta name="description" content="Coomosant es la asociación oficial de domiciliarios y mototaxistas de Santa Marta. Verifica la identidad de nuestros afiliados escaneando el código QR de su carnet."/>
-  <meta name="keywords" content="Coomosant, domicilios Santa Marta, mototaxistas Santa Marta, verificación afiliados, Magdalena Colombia"/>
-  <meta name="robots" content="index, follow"/>
-  <meta name="author" content="Coomosant"/>
+<!-- SEO meta tags -->
+<meta name="description" content="Coomosant es la cooperativa oficial de domiciliarios y mototaxistas de Santa Marta. Verifica la identidad de nuestros afiliados escaneando el código QR de su carnet."/>
+<meta name="keywords" content="Coomosant, domicilios Santa Marta, mototaxistas Santa Marta, verificación afiliados, Magdalena Colombia"/>
+<meta name="robots" content="index, follow"/>
+<meta name="author" content="Coomosant"/>
 
-  <!-- Open Graph (WhatsApp, Facebook) -->
-  <meta property="og:type" content="website"/>
-  <meta property="og:title" content="Coomosant — Domicilios, Tu Mejor Opción · Santa Marta"/>
-  <meta property="og:description" content="Verifica la identidad de nuestros afiliados escaneando el código QR de su carnet oficial."/>
-  <meta property="og:image" content="assets/logo.png"/>
-  <meta property="og:locale" content="es_CO"/>
+<!-- Open Graph (WhatsApp, Facebook) -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Coomosant — Domicilios con identidad verificada · Santa Marta"/>
+<meta property="og:description" content="Verifica la identidad de nuestros afiliados escaneando el código QR de su carnet oficial."/>
+<meta property="og:image" content="assets/logo.png"/>
+<meta property="og:locale" content="es_CO"/>
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary"/>
-  <meta name="twitter:title" content="Coomosant — Verificación de Afiliados"/>
-  <meta name="twitter:description" content="Escanea el QR del carnet para verificar que el afiliado es miembro activo de Coomosant."/>
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Coomosant — Verificación de Afiliados"/>
+<meta name="twitter:description" content="Escanea el QR del carnet para verificar que el afiliado es miembro activo de Coomosant."/>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
-
-  <style>
-    :root {
-      --azul-osc:  #023E8A;
-      --azul-med:  #0077B6;
-      --cyan:      #00B4D8;
-      --cyan-clar: #48CAE4;
-      --cyan-pale: #ADE8F4;
-      --blanco:    #FFFFFF;
-      --negro:     #0D0D0D;
-      --gris-suf:  #F0F8FF;
-      --gris-med:  #333333; /* subido de #444 a #333 para mejor contraste */
-      --radio:     10px;
-      /* Colores corregidos para WCAG AA */
-      --franja-texto: #012A5E;   /* antes #023E8A ratio 4.14 → ahora > 4.5 sobre cyan */
-      --section-tag:  #005A8A;   /* antes #00B4D8 ratio 2.30 → texto oscuro sobre fondo claro */
-      --stat-label:   #DAEEF5;   /* antes opacity 65% ADE8F4 → valor opaco equivalente */
-      --pie-texto:    #1A5276;   /* antes #7AACCC ratio 2.18 → oscuro sobre E8F4FD */
-      --badge-texto:  #01497C;   /* antes #0077B6 ratio 4.37 → azul más oscuro sobre E0F7FA */
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Barlow', sans-serif; background: var(--blanco); color: var(--negro); line-height: 1.6; }
-
-    /* Skip-to-content para teclado / lectores de pantalla */
-    .skip-link {
-      position: absolute; top: -100px; left: 16px; z-index: 9999;
-      background: var(--azul-osc); color: var(--blanco);
-      padding: 10px 18px; border-radius: 0 0 8px 8px;
-      font-weight: 700; font-size: 14px; text-decoration: none;
-      transition: top .2s;
-    }
-    .skip-link:focus { top: 0; }
-
-    /* ── HEADER ── */
-    header { background: var(--azul-osc); padding: 0 20px; border-bottom: 4px solid var(--cyan); }
-    .header-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; gap: 14px; padding: 10px 0; }
-    .logo-img { width: 68px; height: 68px; object-fit: contain; flex-shrink: 0; }
-    .header-text h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(20px,5vw,30px); color: var(--blanco); letter-spacing: 1px; line-height: 1.1; }
-    .header-text p { font-size: 13px; color: var(--cyan-clar); margin-top: 2px; }
-
-    /* ── HERO ── */
-    .hero {
-      background: linear-gradient(145deg, var(--azul-osc) 0%, var(--azul-med) 55%, #005F8A 100%);
-      color: var(--blanco); text-align: center; padding: 70px 20px 80px;
-      position: relative; overflow: hidden;
-    }
-    .hero::before { content:''; position:absolute; top:-80px; right:-80px; width:360px; height:360px; background:var(--cyan); opacity:0.07; border-radius:50%; pointer-events:none; }
-    .hero::after  { content:''; position:absolute; bottom:-60px; left:-60px; width:260px; height:260px; background:var(--cyan-clar); opacity:0.05; border-radius:50%; pointer-events:none; }
-    .hero-logo { width: 110px; height: 110px; object-fit: contain; margin-bottom: 22px; filter: drop-shadow(0 4px 20px rgba(0,180,216,0.5)); }
-    .hero h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(30px,7vw,54px); line-height: 1.05; max-width: 700px; margin: 0 auto 14px; }
-    .hero h2 span { color: var(--cyan-pale); } /* cyan-pale sobre azul medio = ratio 3.62→7.59 */
-    .hero p { font-size: clamp(16px,3vw,18px); opacity: 1; max-width: 560px; margin: 0 auto 32px; color: rgba(255,255,255,0.92); }
-    .badge-qr {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: rgba(0,180,216,0.15); border: 2px solid rgba(0,180,216,0.5);
-      border-radius: 40px; padding: 14px 26px; /* aumentado para touch target >= 44px */
-      font-weight: 700; font-size: 15px; color: var(--cyan-pale); /* ratio 7.59 sobre azul-osc */
-    }
-    .badge-qr svg { flex-shrink: 0; }
-
-    /* ── FRANJA ── */
-    .franja { background: var(--cyan); padding: 28px 20px; text-align: center; }
-    .franja p { max-width: 700px; margin: 0 auto; font-size: clamp(15px,3vw,18px); font-weight: 700; color: var(--franja-texto); } /* ratio 4.89 ✅ */
-
-    /* ── CONTENIDO PRINCIPAL ── */
-    #contenido-principal { outline: none; }
-
-    /* ── CÓMO FUNCIONA ── */
-    .como { max-width: 960px; margin: 0 auto; padding: 64px 20px; }
-    .section-tag {
-      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-      font-size: 13px; /* subido de 11px */
-      letter-spacing: 2px; text-transform: uppercase;
-      color: var(--section-tag); /* #005A8A ratio 5.34 sobre blanco ✅ */
-      margin-bottom: 10px;
-    }
-    .como h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(26px,5vw,40px); margin-bottom: 40px; color: var(--negro); }
-    .pasos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 24px; }
-    .paso { background: var(--gris-suf); border-radius: var(--radio); padding: 28px 22px; border-left: 4px solid var(--cyan); }
-    .paso-num { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 52px; color: var(--cyan); opacity: 0.28; line-height: 1; margin-bottom: 8px; aria-hidden: true; }
-    .paso h4 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 8px; color: var(--azul-osc); }
-    .paso p { font-size: 15px; color: var(--gris-med); } /* subido de 14px */
-
-    /* ── NOSOTROS ── */
-    .nosotros { background: var(--azul-osc); color: var(--blanco); padding: 64px 20px; }
-    .nosotros-inner { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: center; }
-    @media(max-width:640px){ .nosotros-inner { grid-template-columns:1fr; } }
-    .nosotros .section-tag { color: var(--cyan-pale); } /* ratio 7.59 sobre azul-osc ✅ */
-    .nosotros h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(26px,5vw,40px); margin-bottom: 18px; }
-    .nosotros h3 span { color: var(--cyan-pale); } /* cyan-pale ratio 7.59 sobre azul-osc ✅ */
-    .nosotros p { font-size: 15px; color: rgba(255,255,255,0.92); margin-bottom: 14px; }
-    .stats { display: flex; gap: 36px; margin-top: 28px; flex-wrap: wrap; }
-    .stat-num { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 44px; color: var(--cyan-pale); line-height: 1; }
-    .stat-label { font-size: 13px; color: var(--stat-label); margin-top: 4px; } /* #DAEEF5 ratio 7.48 ✅ */
-    .foto-equipo { width: 100%; border-radius: 14px; object-fit: cover; max-height: 280px; border: 3px solid var(--cyan); box-shadow: 0 8px 32px rgba(0,119,182,0.4); }
-
-    /* ── CONTACTO ── */
-    .contacto { max-width: 960px; margin: 0 auto; padding: 64px 20px; }
-    .contacto h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(26px,5vw,40px); margin-bottom: 32px; color: var(--negro); }
-    .contacto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; }
-    .contacto-card {
-      border: 2px solid #D0EAF8; border-radius: var(--radio); padding: 24px 20px;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .contacto-card:hover { border-color: var(--cyan); box-shadow: 0 2px 12px rgba(0,180,216,0.2); }
-    .contacto-card:focus-within { outline: 3px solid var(--cyan); outline-offset: 2px; }
-    .contacto-card .icono { font-size: 28px; margin-bottom: 10px; }
-    .contacto-card h4 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--azul-med); margin-bottom: 4px; }
-    .contacto-card p { font-size: 15px; font-weight: 600; color: var(--negro); }
-
-    /* ── FOCUS VISIBLE global ── */
-    :focus-visible {
-      outline: 3px solid var(--cyan);
-      outline-offset: 3px;
-      border-radius: 4px;
-    }
-
-    /* ── FOOTER ── */
-    footer { background: var(--negro); color: rgba(255,255,255,0.75); text-align: center; padding: 28px 20px; font-size: 14px; border-top: 3px solid var(--cyan); } /* subido de 13px, opacidad de .5 a .75 */
-    footer strong { color: var(--cyan-pale); } /* ratio 8.9 sobre negro ✅ */
-
-    /* ── REDUCCIÓN DE MOVIMIENTO ── */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-    }
-
-    /* ── MODO ALTO CONTRASTE ── */
-    @media (prefers-contrast: more) {
-      .hero h2 span, .nosotros h3 span { color: #FFFFFF; }
-      .section-tag { color: #003060; }
-    }
-  </style>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Open Sans', sans-serif; color: #0c0c0c; line-height: 1.7; }
+  a { color: #0a97b0; text-decoration: none; }
+  a:hover { color: #065968; }
+  input, button { font-family: 'Open Sans', sans-serif; }
+  .btn { display: inline-block; background: #0a97b0; color: #fff; padding: 14px 32px; font-weight: 700; text-transform: uppercase; font-size: 14px; border-radius: 4px; border: none; cursor: pointer; }
+  .btn:hover { background: #065968; color: #fff; }
+</style>
 </head>
 <body>
 
-  <!-- Skip link para teclado y lectores de pantalla -->
-  <a class="skip-link" href="#contenido-principal">Saltar al contenido principal</a>
+<div style="background:#04233b;padding:10px 24px;">
+  <div style="max-width:1180px;margin:0 auto;display:flex;gap:24px;flex-wrap:wrap;">
+    <span style="display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;"><span style="width:22px;height:22px;border-radius:50%;background:#fff;color:#0a97b0;display:flex;align-items:center;justify-content:center;font-size:11px;">📞</span>+57 300 000 0000</span>
+    <span style="display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;"><span style="width:22px;height:22px;border-radius:50%;background:#fff;color:#0a97b0;display:flex;align-items:center;justify-content:center;font-size:11px;">✉</span>contacto@coomosant.org</span>
+    <span style="display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;"><span style="width:22px;height:22px;border-radius:50%;background:#fff;color:#0a97b0;display:flex;align-items:center;justify-content:center;font-size:11px;">📍</span>Santa Marta, Magdalena</span>
+  </div>
+</div>
 
-  <header role="banner">
-    <div class="header-inner">
-      <img class="logo-img" src="assets/logo.png" alt="Logo de Coomosant — Asociación de domiciliarios y mototaxistas"/>
-      <div class="header-text">
-        <h1>COOMOSANT</h1>
-        <p>Domicilios · Tu Mejor Opción · Santa Marta, Colombia</p>
+<header style="background:#fff;padding:16px 24px;">
+  <nav style="max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+    <span style="font-weight:800;font-size:24px;color:#04233b;">COOMOSANT</span>
+    <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:center;">
+      <a href="index.html" style="color:#0a97b0;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Inicio</a>
+      <a href="nosotros.html" style="color:#04233b;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Nosotros</a>
+      <a href="#verificar" style="color:#04233b;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Verificar carnet</a>
+      <a href="#contacto" style="color:#04233b;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Contacto</a>
+      <a href="admin.html" style="background:#0a97b0;color:#fff;padding:9px 20px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;border-radius:4px;">👤 Ingresar</a>
+    </div>
+  </nav>
+</header>
+
+<section style="position:relative;min-height:520px;display:flex;align-items:center;overflow:hidden;">
+  <img src="assets/equipo.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;" />
+  <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(4,35,59,0.92),rgba(4,35,59,0.65));z-index:1;"></div>
+  <div style="position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:80px 24px;width:100%;">
+    <div style="max-width:640px;">
+      <h1 style="font-weight:800;text-transform:uppercase;font-size:clamp(28px,5vw,46px);line-height:1.2;color:#fff;margin:0 0 18px;">Domicilios con <span style="color:#0a97b0;">identidad verificada</span></h1>
+      <p style="color:#f0f4f7;font-size:16px;margin:0 0 30px;">Cada afiliado de Coomosant porta un carnet con código QR único. Escanéalo antes de recibir el servicio para confirmar que la persona es un mototaxista o domiciliario activo y de confianza.</p>
+      <a href="#verificar" class="btn">Verificar un carnet</a>
+    </div>
+  </div>
+</section>
+
+<section style="padding:80px 24px;">
+  <div style="max-width:1180px;margin:0 auto;">
+    <div style="max-width:600px;margin-bottom:40px;">
+      <h2 style="font-weight:800;text-transform:uppercase;font-size:clamp(24px,4vw,34px);margin:0;color:#04233b;">Cómo <span style="color:#0a97b0;">funciona</span></h2>
+      <p style="margin-top:10px;color:#5a6b7a;font-size:15px;">Cuatro pasos para confirmar que estás recibiendo el servicio de un afiliado real.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;">
+      <div style="display:flex;gap:20px;background:#f8f8f9;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;">1</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Solicita el carnet</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">El afiliado te muestra su carnet oficial de Coomosant con foto y código QR personal.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#f8f8f9;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;">2</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Escanea el QR</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Abre la cámara de tu celular y apunta al código. Se abrirá el perfil automáticamente.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#f8f8f9;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;">3</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Verifica el perfil</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Compara la foto y el nombre con la persona frente a ti. El estado debe decir Activo.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#f8f8f9;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;">4</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Recibe el servicio</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Con el perfil verificado, recibes tu domicilio o carrera con total confianza.</p>
+        </div>
       </div>
     </div>
-  </header>
+  </div>
+</section>
 
-  <main id="contenido-principal" tabindex="-1">
-
-    <section class="hero" aria-labelledby="hero-titulo">
-      <img class="hero-logo" src="assets/logo.png" alt="" aria-hidden="true"/> <!-- decorativo -->
-      <h2 id="hero-titulo">Servicio de domicilios con <span>identidad verificada</span></h2>
-      <p>Cada afiliado porta un carnet con código QR. Escanéalo para confirmar que la persona que te atiende es un miembro activo y de confianza de Coomosant.</p>
-      <div class="badge-qr" role="note" aria-label="Instrucción: escanea el código QR del carnet para verificar la identidad">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true" focusable="false">
-          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-          <rect x="3" y="14" width="7" height="7"/><path d="M14 14h7v7"/><path d="M14 17h4"/><path d="M17 14v4"/>
-        </svg>
-        Escanea el QR del carnet para verificar
-      </div>
-    </section>
-
-    <div class="franja" role="note" aria-label="Aviso de seguridad">
-      <p>🛡️ Este sistema protege tanto al cliente como al afiliado. Si el perfil no aparece aquí, el carnet <strong>no es oficial de Coomosant.</strong></p>
+<section style="padding:0 24px 90px;">
+  <div style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:60px;align-items:center;">
+    <div style="position:relative;">
+      <img src="assets/equipo.jpg" alt="Equipo de afiliados Coomosant" style="width:100%;border-radius:2px;position:relative;z-index:2;display:block;" />
+      <div style="position:absolute;top:20px;left:-16px;width:32px;height:70%;background:#04233b;z-index:1;"></div>
+      <div style="position:absolute;top:20px;right:-16px;width:32px;height:70%;background:#04233b;z-index:1;"></div>
     </div>
+    <div>
+      <h2 style="font-weight:800;text-transform:uppercase;font-size:clamp(24px,4vw,34px);margin:0;color:#04233b;">Sobre <span style="color:#0a97b0;">Coomosant</span></h2>
+      <p style="margin-top:16px;color:#1f1f1f;font-size:15px;">Coomosant es la cooperativa oficial de mototaxistas y domiciliarios de Santa Marta. Agrupamos a conductores comprometidos con un servicio seguro, puntual y verificado para toda la comunidad samaria.</p>
+      <a href="nosotros.html" class="btn" style="margin-top:16px;">Leer más</a>
+    </div>
+  </div>
+</section>
 
-    <section class="como" aria-labelledby="como-titulo">
-      <p class="section-tag" aria-hidden="true">Sistema de verificación</p>
-      <h3 id="como-titulo">¿Cómo funciona?</h3>
-      <ol class="pasos" aria-label="Pasos para verificar un afiliado">
-        <li class="paso">
-          <p class="paso-num" aria-hidden="true">01</p>
-          <h4>Solicita el carnet</h4>
-          <p>El afiliado te muestra su carnet físico oficial de Coomosant con foto y código QR personal.</p>
-        </li>
-        <li class="paso">
-          <p class="paso-num" aria-hidden="true">02</p>
-          <h4>Escanea el QR</h4>
-          <p>Abre la cámara de tu celular y apúntala al código QR. Se abrirá esta página automáticamente.</p>
-        </li>
-        <li class="paso">
-          <p class="paso-num" aria-hidden="true">03</p>
-          <h4>Verifica el perfil</h4>
-          <p>Compara la foto y el nombre del perfil con la persona frente a ti. El estado debe decir <strong>Activo ✓</strong>.</p>
-        </li>
-        <li class="paso">
-          <p class="paso-num" aria-hidden="true">04</p>
-          <h4>Recibe el servicio</h4>
-          <p>¡Listo! Con el perfil verificado puedes recibir el servicio con total confianza y seguridad.</p>
-        </li>
-      </ol>
-    </section>
+<section id="verificar" style="position:relative;background:#04233b;padding:80px 24px;color:#fff;">
+  <div style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:40px;align-items:center;">
+    <div>
+      <h2 style="font-weight:800;text-transform:uppercase;font-size:clamp(24px,4vw,32px);margin:0;">Verifica tu carnet</h2>
+      <p style="font-size:14px;margin:16px 0 26px;color:#dbe6ec;">Escribe el número de cédula del afiliado para consultar directamente su estado de afiliación a Coomosant.</p>
+      <form id="form-verificar" style="display:flex;align-items:stretch;">
+        <input type="text" id="cedula-buscar" inputmode="numeric" placeholder="Número de cédula" style="background:#fff;border:none;flex:2.5;outline:none;color:#000;min-height:46px;padding-left:15px;font-size:14px;" />
+        <button type="submit" style="flex:1;background:#0a97b0;color:#fff;border:none;font-size:14px;text-transform:uppercase;font-weight:700;padding:0 20px;cursor:pointer;">Verificar</button>
+      </form>
+    </div>
+  </div>
+</section>
 
-    <section class="nosotros" aria-labelledby="nosotros-titulo">
-      <div class="nosotros-inner">
-        <div>
-          <p class="section-tag" aria-hidden="true">Quiénes somos</p>
-          <h3 id="nosotros-titulo">Movilidad y entregas con <span>respaldo formal</span></h3>
-          <p>Coomosant es una asociación formalmente constituida en Santa Marta, Magdalena. Agrupamos a domiciliarios y mototaxistas comprometidos con ofrecer un servicio seguro, puntual y responsable a la comunidad samaria.</p>
-          <p>Cada afiliado cumple un proceso de registro, verificación de identidad y aceptación de nuestro reglamento antes de recibir su carnet oficial.</p>
-          <div class="stats" aria-label="Datos de la organización">
-            <div>
-              <p class="stat-num" aria-label="Cien por ciento">100%</p>
-              <p class="stat-label">Afiliados verificados</p>
-            </div>
-            <div>
-              <p class="stat-num" aria-hidden="true">📍</p>
-              <p class="stat-label">Santa Marta, Magdalena</p>
-            </div>
-          </div>
-        </div>
-        <div>
-          <img class="foto-equipo" src="assets/equipo.jpg" alt="Grupo de afiliados de Coomosant posando juntos con sus uniformes azules en Santa Marta"/>
-        </div>
+<section id="contacto" style="padding:80px 24px;">
+  <div style="max-width:1180px;margin:0 auto;">
+    <div style="max-width:600px;margin-bottom:40px;">
+      <h2 style="font-weight:800;text-transform:uppercase;font-size:clamp(24px,4vw,34px);margin:0;color:#04233b;">Contáctenos</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">
+      <div style="border:1px solid #dddddd;border-radius:5px;padding:24px 20px;">
+        <h4 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin:0 0 6px;">Teléfono</h4>
+        <p style="margin:0;font-weight:600;"><a href="tel:+573000000000" style="color:#0c0c0c;">+57 300 000 0000</a></p>
       </div>
-    </section>
-
-    <section class="contacto" aria-labelledby="contacto-titulo">
-      <p class="section-tag" aria-hidden="true">Contáctenos</p>
-      <h3 id="contacto-titulo">Información de contacto</h3>
-      <div class="contacto-grid">
-        <!-- ✏️ EDITAR: Reemplaza cada dato con la información real de Coomosant -->
-        <div class="contacto-card">
-          <p class="icono" aria-hidden="true">📞</p>
-          <h4>Teléfono</h4>
-          <p><a href="tel:+573000000000" style="color:inherit;text-decoration:none;" aria-label="Llamar al teléfono +57 300 000 0000">+57 300 000 0000</a></p>
-        </div>
-        <div class="contacto-card">
-          <p class="icono" aria-hidden="true">📧</p>
-          <h4>Correo</h4>
-          <p><a href="mailto:contacto@coomosant.org" style="color:inherit;text-decoration:none;" aria-label="Enviar correo a contacto@coomosant.org">contacto@coomosant.org</a></p>
-        </div>
-        <div class="contacto-card">
-          <p class="icono" aria-hidden="true">📍</p>
-          <h4>Ciudad</h4>
-          <p>Santa Marta, Magdalena</p>
-        </div>
-        <div class="contacto-card">
-          <p class="icono" aria-hidden="true">🕐</p>
-          <h4>Horario de atención</h4>
-          <p><time>Lunes a Viernes, 8am – 5pm</time></p>
-        </div>
+      <div style="border:1px solid #dddddd;border-radius:5px;padding:24px 20px;">
+        <h4 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin:0 0 6px;">Correo</h4>
+        <p style="margin:0;font-weight:600;"><a href="mailto:contacto@coomosant.org" style="color:#0c0c0c;">contacto@coomosant.org</a></p>
       </div>
-    </section>
+      <div style="border:1px solid #dddddd;border-radius:5px;padding:24px 20px;">
+        <h4 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin:0 0 6px;">Ciudad</h4>
+        <p style="margin:0;font-weight:600;">Santa Marta, Magdalena</p>
+      </div>
+      <div style="border:1px solid #dddddd;border-radius:5px;padding:24px 20px;">
+        <h4 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin:0 0 6px;">Horario</h4>
+        <p style="margin:0;font-weight:600;">Lunes a Viernes, 8am – 5pm</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-  </main>
+<section style="background:#04233b;color:#fff;padding:50px 24px 18px;">
+  <div style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:30px;">
+    <div>
+      <h4 style="font-weight:700;margin:0 0 18px;font-size:15px;">Dirección</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a href="#" style="color:#fff;font-size:14px;">📍 Santa Marta, Magdalena</a>
+        <a href="tel:+573000000000" style="color:#fff;font-size:14px;">📞 +57 300 000 0000</a>
+        <a href="mailto:contacto@coomosant.org" style="color:#fff;font-size:14px;">✉ contacto@coomosant.org</a>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-weight:700;margin:0 0 18px;font-size:15px;">Información</h4>
+      <p style="font-size:14px;color:#dbe6ec;margin:0;">Coomosant es la cooperativa oficial de domiciliarios y mototaxistas de Santa Marta. Todos nuestros afiliados portan un carnet verificable en línea.</p>
+    </div>
+    <div>
+      <h4 style="font-weight:700;margin:0 0 18px;font-size:15px;">Enlaces</h4>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <a href="index.html" style="color:#fff;font-size:14px;">Inicio</a>
+        <a href="nosotros.html" style="color:#fff;font-size:14px;">Nosotros</a>
+        <a href="#contacto" style="color:#fff;font-size:14px;">Contacto</a>
+        <a href="admin.html" style="color:#fff;font-size:14px;">Ingresar (Admin)</a>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-weight:700;margin:0 0 18px;font-size:15px;">Horario de atención</h4>
+      <p style="font-size:14px;color:#dbe6ec;margin:0;">Lunes a Viernes<br />8:00 a.m. – 5:00 p.m.</p>
+    </div>
+  </div>
+</section>
 
-  <footer role="contentinfo">
-    <strong>COOMOSANT</strong> — Domicilios, Tu Mejor Opción · Santa Marta, Magdalena<br>
-    <span>Sistema oficial de verificación de afiliados</span>
-  </footer>
+<section style="background:#fff;text-align:center;padding:22px 20px;">
+  <p style="color:#04233b;margin:0;font-size:13px;">© 2026 Coomosant · Santa Marta, Magdalena. Todos los derechos reservados.</p>
+</section>
 
+<script>
+  document.getElementById('form-verificar').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var cc = document.getElementById('cedula-buscar').value.replace(/\D/g, '');
+    if (cc) location.href = 'perfil.html?cc=' + cc;
+  });
+</script>
 </body>
 </html>

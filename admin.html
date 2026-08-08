@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Panel administrativo — Coomosant</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Open Sans', sans-serif; background: #f8f8f9; }
+  a { color: #0a97b0; }
+  a:hover { color: #065968; }
+  input, select, button { font-family: 'Open Sans', sans-serif; }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+
+<div id="app" style="min-height:100vh;"></div>
+
+<script type="module">
+  import * as store from './assets/js/store.js';
+
+  const TIPO_LABELS = { domiciliario: 'Domiciliario', mototaxista: 'Mototaxista', ambos: 'Domiciliario y Mototaxista' };
+  const BADGE = {
+    activo: { bg: '#dff1f4', txt: '#04233b', label: 'Activo' },
+    inactivo: { bg: '#F8D7D7', txt: '#7B1313', label: 'Inactivo' },
+    suspendido: { bg: '#FDECC8', txt: '#7A4B00', label: 'Suspendido' },
+  };
+
+  const S = {
+    view: 'login', session: null, afiliados: [],
+    search: '', filtroEstado: '', filtroTipo: '',
+    loginError: '', busy: false,
+    editingCedula: null,
+    formNombre: '', formCedula: '', formFotoFile: null, formFotoPreview: '',
+    formTipoDom: false, formTipoMoto: false, formEstado: 'activo', formError: '',
+    savedRecord: null, savedQr: '',
+  };
+
+  const app = document.getElementById('app');
+  function set(patch) { Object.assign(S, patch); render(); }
+  function fmtCedula(c) { return (c || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+
+  // ---------------- Carga inicial ----------------
+  async function init() {
+    if (!window.coomosantSupabase) {
+      app.innerHTML = `<div style="max-width:480px;margin:60px auto;padding:24px;text-align:center;color:#7B1313;font-size:14px;">
+        ⚠️ Supabase no está configurado. Editá <code>assets/js/config.js</code>.</div>`;
+      return;
+    }
+    try {
+      const session = await store.getSession();
+      if (session) {
+        set({ session, view: 'list', busy: true });
+        const afiliados = await store.getAfiliados();
+        set({ afiliados, busy: false });
+      } else {
+        render();
+      }
+    } catch (e) {
+      console.error(e);
+      render();
+    }
+  }
+
+  async function refresh() {
+    set({ busy: true });
+    const afiliados = await store.getAfiliados();
+    set({ afiliados, busy: false });
+  }
+
+  // ---------------- Acciones ----------------
+  async function onLogin(e) {
+    e.preventDefault();
+    const usuario = document.getElementById('f-usuario').value.trim();
+    const password = document.getElementById('f-password').value;
+    set({ busy: true, loginError: '' });
+    try {
+      const session = await store.login(usuario, password);
+      if (session) {
+        set({ session, view: 'list', busy: true });
+        const afiliados = await store.getAfiliados();
+        set({ afiliados, busy: false });
+      } else {
+        set({ loginError: 'Usuario o contraseña incorrectos.', busy: false });
+      }
+    } catch (err) {
+      console.error(err);
+      set({ loginError: 'Usuario o contraseña incorrectos.', busy: false });
+    }
+  }
+
+  async function onLogout() {
+    await store.logout();
+    set({ session: null, view: 'login', afiliados: [] });
+  }
+
+  function onNuevo() {
+    set({
+      view: 'form', editingCedula: null, formNombre: '', formCedula: '',
+      formFotoFile: null, formFotoPreview: '', formTipoDom: false, formTipoMoto: false,
+      formEstado: 'activo', formError: '',
+    });
+  }
+
+  function onEditar(cc) {
+    const a = S.afiliados.find((x) => x.cedula === cc);
+    if (!a) return;
+    set({
+      view: 'form', editingCedula: cc, formNombre: a.nombre, formCedula: a.cedula,
+      formFotoFile: null, formFotoPreview: a.foto || '',
+      formTipoDom: a.tipoServicio === 'domiciliario' || a.tipoServicio === 'ambos',
+      formTipoMoto: a.tipoServicio === 'mototaxista' || a.tipoServicio === 'ambos',
+      formEstado: a.estado, formError: '',
+    });
+  }
+
+  async function onCambiarEstado(cc, estado) {
+    set({ busy: true });
+    await store.setEstado(cc, estado);
+    await refresh();
+  }
+
+  async function onEliminar(cc) {
+    if (!confirm('¿Eliminar este afiliado? Esta acción no se puede deshacer.')) return;
+    set({ busy: true });
+    await store.deleteAfiliado(cc);
+    await refresh();
+  }
+
+  function onPhotoChange(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    set({ formFotoFile: file, formFotoPreview: url });
+  }
+
+  async function onGuardar(e) {
+    e.preventDefault();
+    const formNombre = document.getElementById('f-nombre').value;
+    const formCedula = document.getElementById('f-cedula').value.replace(/\D/g, '');
+    const formTipoDom = document.getElementById('f-tipo-dom').checked;
+    const formTipoMoto = document.getElementById('f-tipo-moto').checked;
+    const formEstado = document.querySelector('input[name="f-estado"]:checked').value;
+
+    if (!formNombre.trim() || formCedula.length < 6) {
+      set({ formError: 'Completa el nombre y una cédula válida.' });
+      return;
+    }
+    if (!formTipoDom && !formTipoMoto) {
+      set({ formError: 'Selecciona al menos un tipo de servicio.' });
+      return;
+    }
+    if (!S.editingCedula && S.afiliados.some((a) => a.cedula === formCedula)) {
+      set({ formError: 'Ya existe un afiliado con esa cédula.' });
+      return;
+    }
+
+    const tipoServicio = formTipoDom && formTipoMoto ? 'ambos' : formTipoDom ? 'domiciliario' : 'mototaxista';
+    const record = {
+      cedula: formCedula, nombre: formNombre.trim(), tipoServicio, estado: formEstado,
+      foto: S.formFotoFile || S.formFotoPreview || '',
+    };
+
+    set({ busy: true, formError: '' });
+    try {
+      const saved = await store.saveAfiliado(record, { isEditing: !!S.editingCedula });
+      const qr = await store.qrDataUrl(saved.cedula);
+      const afiliados = await store.getAfiliados();
+      set({ view: 'preview', savedRecord: saved, savedQr: qr, afiliados, busy: false });
+    } catch (err) {
+      console.error(err);
+      set({ formError: err.message || 'No se pudo guardar. Intentá de nuevo.', busy: false });
+    }
+  }
+
+  function onCancelar() { set({ view: 'list' }); }
+  function onVolverListado() { set({ view: 'list' }); }
+
+  // ---------------- Render ----------------
+  function render() {
+    if (S.view === 'login' || !S.session) { renderLogin(); return; }
+    if (S.view === 'form') { renderForm(); return; }
+    if (S.view === 'preview') { renderPreview(); return; }
+    renderList();
+  }
+
+  function shellHeader() {
+    return `
+      <header style="background:#04233b;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:3px solid #0a97b0;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <img src="assets/logo.png" alt="Coomosant" style="width:38px;height:38px;object-fit:contain;" />
+          <div>
+            <p style="font-weight:800;font-size:16px;color:#fff;margin:0;line-height:1.1;text-transform:uppercase;">Coomosant · Admin</p>
+            <p style="font-size:12px;color:#8fd7e2;margin:0;">${S.session ? S.session.nombre : ''}</p>
+          </div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <a href="index.html" style="color:#8fd7e2;font-size:13px;text-transform:uppercase;font-weight:700;">Ver sitio público</a>
+          <button id="btn-logout" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:10px 16px;font-size:13px;font-weight:700;text-transform:uppercase;cursor:pointer;">Salir</button>
+        </div>
+      </header>`;
+  }
+
+  function renderLogin() {
+    app.innerHTML = `
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:#04233b;">
+        <form id="login-form" style="background:#FFFFFF;border-radius:6px;padding:38px 32px;max-width:360px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,0.3);">
+          <img src="assets/logo.png" alt="Coomosant" style="width:68px;height:68px;object-fit:contain;display:block;margin:0 auto 16px;" />
+          <h1 style="font-weight:800;font-size:22px;text-align:center;color:#04233b;margin:0 0 4px;text-transform:uppercase;">Panel administrativo</h1>
+          <p style="font-size:13px;text-align:center;color:#5a6b7a;margin:0 0 26px;">Coomosant · Gestión de afiliados</p>
+
+          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:6px;">Correo</label>
+          <input type="email" id="f-usuario" placeholder="admin@coomosant.org" style="width:100%;padding:12px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;margin-bottom:16px;" />
+
+          <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:6px;">Contraseña</label>
+          <input type="password" id="f-password" placeholder="••••••••" style="width:100%;padding:12px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;margin-bottom:8px;" />
+
+          ${S.loginError ? `<p style="color:#C0392B;font-size:13px;margin:0 0 12px;">${S.loginError}</p>` : ''}
+
+          <button type="submit" ${S.busy ? 'disabled' : ''} style="width:100%;background:#0a97b0;color:#fff;border:none;border-radius:4px;padding:14px;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer;margin-top:8px;">${S.busy ? 'Ingresando…' : 'Ingresar'}</button>
+        </form>
+      </div>`;
+    document.getElementById('login-form').addEventListener('submit', onLogin);
+  }
+
+  function afiliadoFiltrado() {
+    const q = S.search.trim().toLowerCase();
+    return S.afiliados.filter((a) => {
+      const matchesQ = !q || a.nombre.toLowerCase().includes(q) || a.cedula.includes(q);
+      const matchesEstado = !S.filtroEstado || a.estado === S.filtroEstado;
+      const matchesTipo = !S.filtroTipo || a.tipoServicio === S.filtroTipo;
+      return matchesQ && matchesEstado && matchesTipo;
+    });
+  }
+
+  function renderList() {
+    const filtered = afiliadoFiltrado();
+    const cards = filtered.map((a) => {
+      const b = BADGE[a.estado] || BADGE.activo;
+      const foto = a.foto ? `<img src="${a.foto}" alt="" style="width:100%;height:100%;object-fit:cover;" />` : '👤';
+      return `
+        <div style="background:#fff;border-radius:4px;padding:18px;box-shadow:0 0 10px 0 rgba(4,35,59,0.08);display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:#f8f8f9;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:2px solid #dddddd;">${foto}</div>
+            <div style="min-width:0;">
+              <p style="font-weight:700;font-size:15px;color:#0D0D0D;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.nombre}</p>
+              <p style="font-size:13px;color:#5a6b7a;margin:2px 0 0;">CC ${fmtCedula(a.cedula)} · ${TIPO_LABELS[a.tipoServicio] || a.tipoServicio}</p>
+            </div>
+          </div>
+          <span style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:${b.bg};color:${b.txt};border-radius:4px;padding:5px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${b.label}</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-top:1px solid #f0f0f0;padding-top:12px;">
+            <a href="perfil.html?cc=${a.cedula}" target="_blank" style="font-size:13px;font-weight:700;text-transform:uppercase;">Ver ↗</a>
+            <button data-editar="${a.cedula}" style="border:none;background:none;color:#0a97b0;font-size:13px;font-weight:700;text-transform:uppercase;cursor:pointer;padding:0;">Editar</button>
+            <select data-estado="${a.cedula}" style="border:1px solid #dddddd;border-radius:4px;font-size:12px;padding:4px 6px;background:#fff;">
+              <option value="activo" ${a.estado === 'activo' ? 'selected' : ''}>Activo</option>
+              <option value="inactivo" ${a.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+              <option value="suspendido" ${a.estado === 'suspendido' ? 'selected' : ''}>Suspendido</option>
+            </select>
+            <button data-eliminar="${a.cedula}" style="border:none;background:none;color:#C0392B;font-size:13px;font-weight:700;text-transform:uppercase;cursor:pointer;padding:0;margin-left:auto;">Eliminar</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    app.innerHTML = `
+      ${shellHeader()}
+      <div style="max-width:1080px;margin:0 auto;padding:28px 24px 60px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px;">
+          <h2 style="font-weight:800;font-size:24px;color:#04233b;margin:0;text-transform:uppercase;">Afiliados (${S.afiliados.length})</h2>
+          <button id="btn-nuevo" style="background:#0a97b0;color:#fff;border:none;border-radius:4px;padding:12px 22px;font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;">+ Nuevo afiliado</button>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;">
+          <input type="text" id="f-search" value="${S.search}" placeholder="Buscar por nombre o cédula…" style="flex:1;min-width:200px;padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:14px;" />
+          <select id="f-filtro-estado" style="padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:14px;background:#fff;">
+            <option value="" ${!S.filtroEstado ? 'selected' : ''}>Todos los estados</option>
+            <option value="activo" ${S.filtroEstado === 'activo' ? 'selected' : ''}>Activo</option>
+            <option value="inactivo" ${S.filtroEstado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+            <option value="suspendido" ${S.filtroEstado === 'suspendido' ? 'selected' : ''}>Suspendido</option>
+          </select>
+          <select id="f-filtro-tipo" style="padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:14px;background:#fff;">
+            <option value="" ${!S.filtroTipo ? 'selected' : ''}>Todos los servicios</option>
+            <option value="domiciliario" ${S.filtroTipo === 'domiciliario' ? 'selected' : ''}>Domiciliario</option>
+            <option value="mototaxista" ${S.filtroTipo === 'mototaxista' ? 'selected' : ''}>Mototaxista</option>
+            <option value="ambos" ${S.filtroTipo === 'ambos' ? 'selected' : ''}>Ambos</option>
+          </select>
+        </div>
+
+        ${filtered.length > 0
+          ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">${cards}</div>`
+          : `<p style="text-align:center;color:#5a6b7a;font-size:14px;padding:40px 0;">${S.busy ? 'Cargando…' : 'No hay afiliados que coincidan con la búsqueda.'}</p>`}
+      </div>`;
+
+    document.getElementById('btn-logout').addEventListener('click', onLogout);
+    document.getElementById('btn-nuevo').addEventListener('click', onNuevo);
+    document.getElementById('f-search').addEventListener('input', (e) => set({ search: e.target.value }));
+    document.getElementById('f-filtro-estado').addEventListener('change', (e) => set({ filtroEstado: e.target.value }));
+    document.getElementById('f-filtro-tipo').addEventListener('change', (e) => set({ filtroTipo: e.target.value }));
+    app.querySelectorAll('[data-editar]').forEach((btn) => btn.addEventListener('click', () => onEditar(btn.dataset.editar)));
+    app.querySelectorAll('[data-eliminar]').forEach((btn) => btn.addEventListener('click', () => onEliminar(btn.dataset.eliminar)));
+    app.querySelectorAll('[data-estado]').forEach((sel) => sel.addEventListener('change', () => onCambiarEstado(sel.dataset.estado, sel.value)));
+  }
+
+  function renderForm() {
+    const isEditing = !!S.editingCedula;
+    const fotoHtml = S.formFotoPreview
+      ? `<img src="${S.formFotoPreview}" alt="" style="width:100%;height:100%;object-fit:cover;" />`
+      : '👤';
+
+    app.innerHTML = `
+      ${shellHeader()}
+      <div style="max-width:520px;margin:0 auto;padding:28px 24px 60px;">
+        <h2 style="font-weight:800;font-size:22px;color:#04233b;margin:0 0 20px;text-transform:uppercase;">${isEditing ? 'Editar afiliado' : 'Nuevo afiliado'}</h2>
+        <form id="afiliado-form" style="background:#fff;border-radius:4px;padding:26px;box-shadow:0 0 10px 0 rgba(4,35,59,0.08);display:flex;flex-direction:column;gap:18px;">
+
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;background:#f8f8f9;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;border:2px dashed #dddddd;">${fotoHtml}</div>
+            <div>
+              <label style="display:inline-block;background:#f8f8f9;color:#0a97b0;border:1px solid #dddddd;border-radius:4px;padding:9px 14px;font-size:13px;font-weight:700;text-transform:uppercase;cursor:pointer;">
+                Subir foto
+                <input type="file" id="f-foto" accept="image/*" style="display:none;" />
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:6px;">Nombre completo</label>
+            <input type="text" id="f-nombre" value="${S.formNombre}" placeholder="Nombre y apellidos" style="width:100%;padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;" />
+          </div>
+
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:6px;">Cédula de ciudadanía</label>
+            <input type="text" id="f-cedula" value="${S.formCedula}" ${isEditing ? 'disabled' : ''} placeholder="Solo números" style="width:100%;padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;background:${isEditing ? '#f0f0f0' : '#fff'};" />
+          </div>
+
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:8px;">Tipo de servicio</label>
+            <div style="display:flex;gap:18px;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;"><input type="checkbox" id="f-tipo-dom" ${S.formTipoDom ? 'checked' : ''} /> Domiciliario</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;"><input type="checkbox" id="f-tipo-moto" ${S.formTipoMoto ? 'checked' : ''} /> Mototaxista</label>
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:8px;">Estado</label>
+            <div style="display:flex;gap:14px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;"><input type="radio" name="f-estado" value="activo" ${S.formEstado === 'activo' ? 'checked' : ''} /> Activo</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;"><input type="radio" name="f-estado" value="suspendido" ${S.formEstado === 'suspendido' ? 'checked' : ''} /> Suspendido</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:14px;"><input type="radio" name="f-estado" value="inactivo" ${S.formEstado === 'inactivo' ? 'checked' : ''} /> Inactivo</label>
+            </div>
+          </div>
+
+          ${S.formError ? `<p style="color:#C0392B;font-size:13px;margin:0;">${S.formError}</p>` : ''}
+
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <button type="button" id="btn-cancelar" style="flex:1;background:#f0f0f0;color:#333;border:none;border-radius:4px;padding:13px;font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;">Cancelar</button>
+            <button type="submit" ${S.busy ? 'disabled' : ''} style="flex:2;background:#0a97b0;color:#fff;border:none;border-radius:4px;padding:13px;font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;">${S.busy ? 'Guardando…' : 'Guardar y generar QR'}</button>
+          </div>
+        </form>
+      </div>`;
+
+    document.getElementById('afiliado-form').addEventListener('submit', onGuardar);
+    document.getElementById('btn-cancelar').addEventListener('click', onCancelar);
+    document.getElementById('btn-logout').addEventListener('click', onLogout);
+    document.getElementById('f-foto').addEventListener('change', onPhotoChange);
+  }
+
+  function renderPreview() {
+    const r = S.savedRecord;
+    const fotoHtml = r.foto ? `<img src="${r.foto}" alt="" style="width:100%;height:100%;object-fit:cover;" />` : '👤';
+    const perfilHref = store.perfilUrl(r.cedula);
+
+    app.innerHTML = `
+      ${shellHeader()}
+      <div style="max-width:440px;margin:0 auto;padding:28px 24px 60px;text-align:center;">
+        <p style="font-size:13px;color:#1A7A4E;font-weight:700;margin:0 0 4px;text-transform:uppercase;">✅ Afiliado guardado</p>
+        <h2 style="font-weight:800;font-size:20px;color:#04233b;margin:0 0 20px;text-transform:uppercase;">Credencial y código QR</h2>
+
+        <div style="background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(4,35,59,0.15);">
+          <div style="background:linear-gradient(135deg,#04233b 0%,#0a5f74 60%,#0a97b0 100%);padding:22px 20px;">
+            <div style="width:88px;height:88px;border-radius:50%;border:3px solid #fff;overflow:hidden;background:#f0f4f5;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:36px;">${fotoHtml}</div>
+          </div>
+          <div style="padding:18px 20px;">
+            <p style="font-weight:800;font-size:18px;color:#04233b;margin:0 0 2px;text-transform:uppercase;">${r.nombre.toUpperCase()}</p>
+            <p style="font-size:13px;color:#5a6b7a;margin:0 0 14px;">CC ${fmtCedula(r.cedula)} · ${TIPO_LABELS[r.tipoServicio] || r.tipoServicio}</p>
+            <div style="width:160px;height:160px;margin:0 auto 10px;border:2px solid #04233b;border-radius:4px;overflow:hidden;"><img src="${S.savedQr}" alt="QR" style="width:100%;height:100%;object-fit:contain;" /></div>
+            <p style="font-size:12px;color:#5a6b7a;word-break:break-all;margin:0 0 14px;">${perfilHref}</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+              <a href="${S.savedQr}" download="QR-${r.cedula}.png" style="background:#0a97b0;color:#fff;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Descargar QR</a>
+              <a href="${perfilHref}" target="_blank" style="background:#f8f8f9;color:#04233b;border:1px solid #dddddd;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Ver credencial pública</a>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-volver" style="margin-top:22px;background:none;border:none;color:#0a97b0;font-size:13px;font-weight:700;text-transform:uppercase;cursor:pointer;">← Volver al listado</button>
+      </div>`;
+
+    document.getElementById('btn-logout').addEventListener('click', onLogout);
+    document.getElementById('btn-volver').addEventListener('click', onVolverListado);
+  }
+
+  init();
+</script>
+</body>
+</html>

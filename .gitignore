@@ -1,0 +1,3 @@
+# Export crudo del proyecto de diseño (bundle pesado + plantilla de terceros
+# usada solo como referencia). No es código de producción — se mantiene local.
+_handoff/design_full/
