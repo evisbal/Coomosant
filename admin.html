@@ -19,7 +19,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/supabase-client.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -48,6 +47,13 @@
   const app = document.getElementById('app');
   function set(patch) { Object.assign(S, patch); render(); }
   function fmtCedula(c) { return (c || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  // Escapa texto dinámico antes de insertarlo en innerHTML — evita que nombres,
+  // mensajes de error, etc. rompan el markup si contienen < > & " '.
+  function esc(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
 
   // ---------------- Carga inicial ----------------
   async function init() {
@@ -171,15 +177,26 @@
     };
 
     set({ busy: true, formError: '' });
+    let saved;
     try {
-      const saved = await store.saveAfiliado(record, { isEditing: !!S.editingCedula });
-      const qr = await store.qrDataUrl(saved.cedula);
-      const afiliados = await store.getAfiliados();
-      set({ view: 'preview', savedRecord: saved, savedQr: qr, afiliados, busy: false });
+      saved = await store.saveAfiliado(record, { isEditing: !!S.editingCedula });
     } catch (err) {
       console.error(err);
       set({ formError: err.message || 'No se pudo guardar. Intentá de nuevo.', busy: false });
+      return;
     }
+
+    // El afiliado ya quedó guardado en este punto. Si el QR falla (ej. sin
+    // conexión a la librería), igual avanzamos a la confirmación en vez de
+    // dejar al usuario pensando que no se guardó nada.
+    let qr = '';
+    try {
+      qr = await store.qrDataUrl(saved.cedula);
+    } catch (err) {
+      console.error(err);
+    }
+    const afiliados = await store.getAfiliados();
+    set({ view: 'preview', savedRecord: saved, savedQr: qr, afiliados, busy: false });
   }
 
   function onCancelar() { set({ view: 'list' }); }
@@ -200,7 +217,7 @@
           <img src="assets/logo.png" alt="Coomosant" style="width:38px;height:38px;object-fit:contain;" />
           <div>
             <p style="font-weight:800;font-size:16px;color:#fff;margin:0;line-height:1.1;text-transform:uppercase;">Coomosant · Admin</p>
-            <p style="font-size:12px;color:#8fd7e2;margin:0;">${S.session ? S.session.nombre : ''}</p>
+            <p style="font-size:12px;color:#8fd7e2;margin:0;">${esc(S.session ? S.session.nombre : '')}</p>
           </div>
         </div>
         <div style="display:flex;gap:16px;align-items:center;">
@@ -224,7 +241,7 @@
           <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:6px;">Contraseña</label>
           <input type="password" id="f-password" placeholder="••••••••" style="width:100%;padding:12px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;margin-bottom:8px;" />
 
-          ${S.loginError ? `<p style="color:#C0392B;font-size:13px;margin:0 0 12px;">${S.loginError}</p>` : ''}
+          ${S.loginError ? `<p style="color:#C0392B;font-size:13px;margin:0 0 12px;">${esc(S.loginError)}</p>` : ''}
 
           <button type="submit" ${S.busy ? 'disabled' : ''} style="width:100%;background:#0a97b0;color:#fff;border:none;border-radius:4px;padding:14px;font-weight:700;font-size:14px;text-transform:uppercase;cursor:pointer;margin-top:8px;">${S.busy ? 'Ingresando…' : 'Ingresar'}</button>
         </form>
@@ -252,8 +269,8 @@
           <div style="display:flex;gap:12px;align-items:center;">
             <div style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:#f8f8f9;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:2px solid #dddddd;">${foto}</div>
             <div style="min-width:0;">
-              <p style="font-weight:700;font-size:15px;color:#0D0D0D;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.nombre}</p>
-              <p style="font-size:13px;color:#5a6b7a;margin:2px 0 0;">CC ${fmtCedula(a.cedula)} · ${TIPO_LABELS[a.tipoServicio] || a.tipoServicio}</p>
+              <p style="font-weight:700;font-size:15px;color:#0D0D0D;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(a.nombre)}</p>
+              <p style="font-size:13px;color:#5a6b7a;margin:2px 0 0;">CC ${fmtCedula(a.cedula)} · ${esc(TIPO_LABELS[a.tipoServicio] || a.tipoServicio)}</p>
             </div>
           </div>
           <span style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:${b.bg};color:${b.txt};border-radius:4px;padding:5px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${b.label}</span>
@@ -333,12 +350,12 @@
 
           <div>
             <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:6px;">Nombre completo</label>
-            <input type="text" id="f-nombre" value="${S.formNombre}" placeholder="Nombre y apellidos" style="width:100%;padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;" />
+            <input type="text" id="f-nombre" value="${esc(S.formNombre)}" placeholder="Nombre y apellidos" style="width:100%;padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;" />
           </div>
 
           <div>
             <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:6px;">Cédula de ciudadanía</label>
-            <input type="text" id="f-cedula" value="${S.formCedula}" ${isEditing ? 'disabled' : ''} placeholder="Solo números" style="width:100%;padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;background:${isEditing ? '#f0f0f0' : '#fff'};" />
+            <input type="text" id="f-cedula" value="${esc(S.formCedula)}" ${isEditing ? 'disabled' : ''} placeholder="Solo números" style="width:100%;padding:11px 14px;border:1px solid #dddddd;border-radius:4px;font-size:15px;background:${isEditing ? '#f0f0f0' : '#fff'};" />
           </div>
 
           <div>
@@ -358,7 +375,7 @@
             </div>
           </div>
 
-          ${S.formError ? `<p style="color:#C0392B;font-size:13px;margin:0;">${S.formError}</p>` : ''}
+          ${S.formError ? `<p style="color:#C0392B;font-size:13px;margin:0;">${esc(S.formError)}</p>` : ''}
 
           <div style="display:flex;gap:10px;margin-top:6px;">
             <button type="button" id="btn-cancelar" style="flex:1;background:#f0f0f0;color:#333;border:none;border-radius:4px;padding:13px;font-weight:700;font-size:13px;text-transform:uppercase;cursor:pointer;">Cancelar</button>
@@ -389,13 +406,13 @@
             <div style="width:88px;height:88px;border-radius:50%;border:3px solid #fff;overflow:hidden;background:#f0f4f5;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:36px;">${fotoHtml}</div>
           </div>
           <div style="padding:18px 20px;">
-            <p style="font-weight:800;font-size:18px;color:#04233b;margin:0 0 2px;text-transform:uppercase;">${r.nombre.toUpperCase()}</p>
-            <p style="font-size:13px;color:#5a6b7a;margin:0 0 14px;">CC ${fmtCedula(r.cedula)} · ${TIPO_LABELS[r.tipoServicio] || r.tipoServicio}</p>
-            <div style="width:160px;height:160px;margin:0 auto 10px;border:2px solid #04233b;border-radius:4px;overflow:hidden;"><img src="${S.savedQr}" alt="QR" style="width:100%;height:100%;object-fit:contain;" /></div>
-            <p style="font-size:12px;color:#5a6b7a;word-break:break-all;margin:0 0 14px;">${perfilHref}</p>
+            <p style="font-weight:800;font-size:18px;color:#04233b;margin:0 0 2px;text-transform:uppercase;">${esc(r.nombre.toUpperCase())}</p>
+            <p style="font-size:13px;color:#5a6b7a;margin:0 0 14px;">CC ${fmtCedula(r.cedula)} · ${esc(TIPO_LABELS[r.tipoServicio] || r.tipoServicio)}</p>
+            <div style="width:160px;height:160px;margin:0 auto 10px;border:2px solid #04233b;border-radius:4px;overflow:hidden;">${S.savedQr ? `<img src="${S.savedQr}" alt="QR" style="width:100%;height:100%;object-fit:contain;" />` : '<span style="font-size:12px;color:#C0392B;">QR no disponible</span>'}</div>
+            <p style="font-size:12px;color:#5a6b7a;word-break:break-all;margin:0 0 14px;">${esc(perfilHref)}</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-              <a href="${S.savedQr}" download="QR-${r.cedula}.png" style="background:#0a97b0;color:#fff;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Descargar QR</a>
-              <a href="${perfilHref}" target="_blank" style="background:#f8f8f9;color:#04233b;border:1px solid #dddddd;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Ver credencial pública</a>
+              ${S.savedQr ? `<a href="${esc(S.savedQr)}" download="QR-${esc(r.cedula)}.png" style="background:#0a97b0;color:#fff;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Descargar QR</a>` : ''}
+              <a href="${esc(perfilHref)}" target="_blank" style="background:#f8f8f9;color:#04233b;border:1px solid #dddddd;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Ver credencial pública</a>
             </div>
           </div>
         </div>

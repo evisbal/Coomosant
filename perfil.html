@@ -21,8 +21,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/supabase-client.js"></script>
-<!-- Generación de QR 100% client-side -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -83,6 +81,14 @@
     document.getElementById('contenido').outerHTML = html;
   }
 
+  // Escapa texto dinámico antes de insertarlo en innerHTML/outerHTML — evita
+  // que nombres, mensajes de error, etc. rompan el markup si contienen < > & " '.
+  function esc(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
   function renderDemo() {
     render(`
       <main class="skeleton" style="max-width:460px;text-align:left;">
@@ -109,7 +115,7 @@
   }
 
   function renderError(msg) {
-    render(`<main class="skeleton">⚠️ ${msg}</main>`);
+    render(`<main class="skeleton">⚠️ ${esc(msg)}</main>`);
   }
 
   async function renderAfiliado(afiliado) {
@@ -121,12 +127,11 @@
       ? `<img src="${afiliado.foto}" alt="Foto del afiliado" style="width:100%;height:100%;object-fit:cover;display:block;" />`
       : '👤';
 
-    let qrHtml = '';
+    let qrHtml = '<span style="font-size:11px;color:#5a6b7a;">QR no disponible</span>';
     try {
       const qr = await qrDataUrl(afiliado.cedula);
       qrHtml = `<img src="${qr}" alt="Código QR del afiliado" style="width:100%;height:100%;object-fit:contain;" />`;
     } catch (e) {
-      qrHtml = '';
       console.warn(e);
     }
 
@@ -149,7 +154,7 @@
               <span style="width:8px;height:8px;border-radius:50%;background:${t.dotColor};animation:${t.dotAnim};"></span>
               <span>${t.badgeLabel}</span>
             </div>
-            <h2 style="font-weight:800;font-size:26px;line-height:1.2;color:${t.nombreColor};margin:0 0 6px;text-decoration:${t.nombreDecoration};text-transform:uppercase;">${afiliado.nombre.toUpperCase()}</h2>
+            <h2 style="font-weight:800;font-size:26px;line-height:1.2;color:${t.nombreColor};margin:0 0 6px;text-decoration:${t.nombreDecoration};text-transform:uppercase;">${esc(afiliado.nombre.toUpperCase())}</h2>
             <p style="font-size:14px;color:#5a6b7a;margin:0 0 24px;">Afiliado a Coomosant · Santa Marta</p>
             <hr style="border:none;border-top:1px solid #e5e9eb;margin:0 0 24px;" />
             <div style="display:flex;align-items:flex-start;gap:12px;text-align:left;margin-bottom:16px;">

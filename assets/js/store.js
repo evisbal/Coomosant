@@ -158,15 +158,29 @@ export function perfilUrl(cc) {
   return `${base}perfil.html?cc=${cleanCedula(cc)}`;
 }
 
-// Genera el QR 100% en el navegador (librería `qrcode`, cargada por CDN en la
-// página) — no depende de ningún servicio externo en tiempo de uso.
-// Devuelve un data URL (PNG) listo para <img src="...">.
+// Genera el QR 100% en el navegador (librería `qrcode`, importada como
+// módulo ES desde esm.sh) — no depende de ningún servicio externo en tiempo
+// de uso. Devuelve un data URL (PNG) listo para <img src="...">.
+let qrLibPromise;
+function loadQrLib() {
+  if (!qrLibPromise) {
+    qrLibPromise = import('https://esm.sh/qrcode@1.5.4').catch((e) => {
+      qrLibPromise = null; // permitir reintentar si falla la red
+      throw e;
+    });
+  }
+  return qrLibPromise;
+}
+
 export async function qrDataUrl(cc) {
   const url = perfilUrl(cc);
-  if (!window.QRCode || !window.QRCode.toDataURL) {
-    throw new Error('Falta cargar la librería qrcode (ver <script> en el <head> de la página).');
+  let mod;
+  try {
+    mod = await loadQrLib();
+  } catch (e) {
+    throw new Error('No se pudo cargar la librería para generar el QR. Revisá tu conexión e intentá de nuevo.');
   }
-  return window.QRCode.toDataURL(url, { width: 320, margin: 1 });
+  return mod.default.toDataURL(url, { width: 320, margin: 1 });
 }
 
 export function tipoLabel(tipoServicio) {
