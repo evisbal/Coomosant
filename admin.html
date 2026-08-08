@@ -475,7 +475,7 @@
             <p style="font-size:12px;color:#5a6b7a;word-break:break-all;margin:0 0 14px;">${esc(perfilHref)}</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
               ${S.savedQr ? `<a href="${esc(S.savedQr)}" download="QR-${esc(r.cedula)}.png" style="background:#0a97b0;color:#fff;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Descargar QR</a>` : ''}
-              <a href="carnet.html?cc=${encodeURIComponent(r.cedula)}" target="_blank" style="background:#f8f8f9;color:#04233b;border:1px solid #dddddd;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Abrir carnet para imprimir</a>
+              <a href="carnet.html?cc=${encodeURIComponent(r.cedula)}" target="_blank" style="background:#f8f8f9;color:#04233b;border:1px solid #dddddd;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Abrir carnet</a>
               <a href="${esc(perfilHref)}" target="_blank" style="background:#f8f8f9;color:#04233b;border:1px solid #dddddd;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Ver credencial pública</a>
             </div>
           </div>
