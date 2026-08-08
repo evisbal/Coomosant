@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Carnet imprimible — Coomosant</title>
+<meta name="robots" content="noindex, follow"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Open Sans', sans-serif; background: #eef3f4; }
+  a { color: #0a97b0; text-decoration: none; }
+  @keyframes cm-pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+  .skeleton { max-width: 460px; margin: 32px auto; padding: 0 16px; text-align: center; color: #5a6b7a; font-size: 14px; }
+  .toolbar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 0 0 22px; }
+  .toolbar button, .toolbar a { border: none; border-radius: 4px; padding: 12px 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+  .btn-primary { background: #0a97b0; color: #fff; }
+  .btn-primary:hover { background: #065968; }
+  .btn-secondary { background: #fff; color: #04233b; border: 1px solid #dddddd !important; }
+
+  /* Al imprimir (o "Guardar como PDF"): solo la tarjeta, sin toolbar ni fondo. */
+  @media print {
+    body { background: #fff; }
+    .no-print { display: none !important; }
+    .skeleton { max-width: none; margin: 0; padding: 0; }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/supabase-client.js"></script>
+</head>
+<body>
+
+<header class="no-print" style="background:#04233b;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #0a97b0;flex-wrap:wrap;gap:10px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <img src="assets/logo.png" alt="Coomosant" style="width:40px;height:40px;object-fit:contain;" />
+    <div>
+      <p style="font-weight:800;font-size:18px;color:#fff;margin:0;line-height:1.1;text-transform:uppercase;">Coomosant</p>
+      <p style="font-size:12px;color:#8fd7e2;margin:0;">Carnet imprimible</p>
+    </div>
+  </div>
+  <a href="admin.html" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:4px;padding:11px 16px;font-size:13px;font-weight:700;text-transform:uppercase;">← Admin</a>
+</header>
+
+<main id="contenido" class="skeleton" style="margin-top:28px;">Cargando…</main>
+
+<script type="module">
+  import { getAfiliadoByCedula, qrDataUrl, tipoLabel, fmtCedula } from './assets/js/store.js';
+  import { tema, cardHtml } from './assets/js/credential-card.js';
+
+  function render(html) {
+    document.getElementById('contenido').outerHTML = html;
+  }
+
+  function esc(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
+  function renderMissing(msg) {
+    render(`<main class="skeleton">⚠️ ${esc(msg)}</main>`);
+  }
+
+  async function downloadAsImage(cedula) {
+    const card = document.getElementById('carnet-card');
+    const btn = document.getElementById('btn-imagen');
+    const original = btn.textContent;
+    btn.textContent = 'Generando…';
+    btn.disabled = true;
+    try {
+      const { default: html2canvas } = await import('https://esm.sh/html2canvas@1.4.1');
+      const canvas = await html2canvas(card, { backgroundColor: '#eef3f4', scale: 2 });
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = `carnet-${cedula}.png`;
+      a.click();
+    } catch (e) {
+      console.error(e);
+      alert('No se pudo generar la imagen. Intentá de nuevo.');
+    } finally {
+      btn.textContent = original;
+      btn.disabled = false;
+    }
+  }
+
+  async function init() {
+    const params = new URLSearchParams(location.search);
+    const cc = params.get('cc');
+    if (!cc) { renderMissing('Falta indicar la cédula (?cc=...) del afiliado.'); return; }
+
+    let afiliado;
+    try {
+      afiliado = await getAfiliadoByCedula(cc);
+    } catch (e) {
+      console.error(e);
+      renderMissing(e.message || 'No se pudo consultar el afiliado.');
+      return;
+    }
+    if (!afiliado) { renderMissing('No existe ningún afiliado con esa cédula.'); return; }
+
+    document.body.style.background = tema(afiliado.estado).bg;
+
+    let qrHtml = '<span style="font-size:11px;color:#5a6b7a;">QR no disponible</span>';
+    try {
+      const qr = await qrDataUrl(afiliado.cedula);
+      qrHtml = `<img src="${qr}" alt="Código QR del afiliado" style="width:100%;height:100%;object-fit:contain;" />`;
+    } catch (e) {
+      console.warn(e);
+    }
+
+    render(`
+      <main class="skeleton" style="max-width:460px;">
+        <div class="toolbar no-print">
+          <button id="btn-imagen" class="btn-primary" type="button">Descargar como imagen</button>
+          <button id="btn-pdf" class="btn-secondary" type="button">Imprimir / Guardar como PDF</button>
+        </div>
+        <div id="carnet-card">${cardHtml(afiliado, qrHtml, fmtCedula, tipoLabel)}</div>
+      </main>`);
+
+    document.getElementById('btn-imagen').addEventListener('click', () => downloadAsImage(afiliado.cedula));
+    document.getElementById('btn-pdf').addEventListener('click', () => window.print());
+  }
+
+  init();
+</script>
+</body>
+</html>

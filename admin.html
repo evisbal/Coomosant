@@ -55,6 +55,52 @@
     }[c]));
   }
 
+  // Caché de QRs generados (por cédula) para no recalcularlos en cada
+  // re-render de la lista (ej. al tipear en el buscador).
+  const qrCache = new Map();
+  let openQrMenu = null;
+
+  // Genera (o toma de caché) el QR de cada afiliado visible y lo va
+  // pintando en su thumbnail a medida que están listos.
+  function hydrateQrThumbnails(afiliados) {
+    afiliados.forEach((a) => {
+      if (qrCache.has(a.cedula)) return; // ya pintado por el template al renderizar
+      store.qrDataUrl(a.cedula).then((qr) => {
+        qrCache.set(a.cedula, qr);
+        const img = document.querySelector(`img[data-qr-img="${a.cedula}"]`);
+        const placeholder = document.querySelector(`[data-qr-placeholder="${a.cedula}"]`);
+        if (img) { img.src = qr; img.style.display = 'block'; }
+        if (placeholder) placeholder.style.display = 'none';
+      }).catch((e) => console.warn('No se pudo generar el QR de', a.cedula, e));
+    });
+  }
+
+  function closeQrMenus() {
+    app.querySelectorAll('.qr-menu').forEach((m) => (m.style.display = 'none'));
+    openQrMenu = null;
+  }
+
+  function toggleQrMenu(cedula) {
+    const menu = app.querySelector(`.qr-menu[data-menu="${cedula}"]`);
+    if (!menu) return;
+    const isOpen = menu.style.display === 'block';
+    closeQrMenus();
+    if (!isOpen) { menu.style.display = 'block'; openQrMenu = cedula; }
+  }
+
+  function downloadQr(cedula) {
+    const dataUrl = qrCache.get(cedula);
+    if (!dataUrl) return;
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `QR-${cedula}.png`;
+    a.click();
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.qr-thumb-wrap')) closeQrMenus();
+  });
+
   // ---------------- Carga inicial ----------------
   async function init() {
     if (!window.coomosantSupabase) {
@@ -264,13 +310,26 @@
     const cards = filtered.map((a) => {
       const b = BADGE[a.estado] || BADGE.activo;
       const foto = a.foto ? `<img src="${a.foto}" alt="" style="width:100%;height:100%;object-fit:cover;" />` : '👤';
+      const cachedQr = qrCache.get(a.cedula) || '';
       return `
         <div style="background:#fff;border-radius:4px;padding:18px;box-shadow:0 0 10px 0 rgba(4,35,59,0.08);display:flex;flex-direction:column;gap:12px;">
-          <div style="display:flex;gap:12px;align-items:center;">
-            <div style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:#f8f8f9;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:2px solid #dddddd;">${foto}</div>
-            <div style="min-width:0;">
-              <p style="font-weight:700;font-size:15px;color:#0D0D0D;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(a.nombre)}</p>
-              <p style="font-size:13px;color:#5a6b7a;margin:2px 0 0;">CC ${fmtCedula(a.cedula)} · ${esc(TIPO_LABELS[a.tipoServicio] || a.tipoServicio)}</p>
+          <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;">
+            <div style="display:flex;gap:12px;align-items:center;min-width:0;">
+              <div style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:#f8f8f9;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:2px solid #dddddd;">${foto}</div>
+              <div style="min-width:0;">
+                <p style="font-weight:700;font-size:15px;color:#0D0D0D;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(a.nombre)}</p>
+                <p style="font-size:13px;color:#5a6b7a;margin:2px 0 0;">CC ${fmtCedula(a.cedula)} · ${esc(TIPO_LABELS[a.tipoServicio] || a.tipoServicio)}</p>
+              </div>
+            </div>
+            <div class="qr-thumb-wrap" style="position:relative;flex-shrink:0;">
+              <button type="button" data-qr-toggle="${a.cedula}" title="Opciones del QR" style="width:52px;height:52px;padding:2px;border:2px solid #dddddd;border-radius:4px;background:#f8f8f9;cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                <img data-qr-img="${a.cedula}" src="${cachedQr}" alt="QR" style="width:100%;height:100%;object-fit:contain;display:${cachedQr ? 'block' : 'none'};" />
+                <span data-qr-placeholder="${a.cedula}" style="font-size:9px;font-weight:700;color:#8a9bab;text-transform:uppercase;display:${cachedQr ? 'none' : 'block'};">QR</span>
+              </button>
+              <div class="qr-menu" data-menu="${a.cedula}" style="display:none;position:absolute;top:58px;right:0;background:#fff;border:1px solid #dddddd;border-radius:4px;box-shadow:0 4px 16px rgba(4,35,59,0.18);min-width:190px;z-index:20;overflow:hidden;text-align:left;">
+                <button type="button" data-qr-download="${a.cedula}" style="display:block;width:100%;text-align:left;padding:11px 14px;border:none;background:none;cursor:pointer;font-size:13px;color:#04233b;">💾 Guardar como imagen</button>
+                <button type="button" data-qr-carnet="${a.cedula}" style="display:block;width:100%;text-align:left;padding:11px 14px;border:none;background:none;cursor:pointer;font-size:13px;color:#04233b;border-top:1px solid #f0f0f0;">🪪 Abrir carnet</button>
+              </div>
             </div>
           </div>
           <span style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:${b.bg};color:${b.txt};border-radius:4px;padding:5px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">${b.label}</span>
@@ -324,6 +383,10 @@
     app.querySelectorAll('[data-editar]').forEach((btn) => btn.addEventListener('click', () => onEditar(btn.dataset.editar)));
     app.querySelectorAll('[data-eliminar]').forEach((btn) => btn.addEventListener('click', () => onEliminar(btn.dataset.eliminar)));
     app.querySelectorAll('[data-estado]').forEach((sel) => sel.addEventListener('change', () => onCambiarEstado(sel.dataset.estado, sel.value)));
+    app.querySelectorAll('[data-qr-toggle]').forEach((btn) => btn.addEventListener('click', (e) => { e.stopPropagation(); toggleQrMenu(btn.dataset.qrToggle); }));
+    app.querySelectorAll('[data-qr-download]').forEach((btn) => btn.addEventListener('click', () => { downloadQr(btn.dataset.qrDownload); closeQrMenus(); }));
+    app.querySelectorAll('[data-qr-carnet]').forEach((btn) => btn.addEventListener('click', () => { window.open(`carnet.html?cc=${encodeURIComponent(btn.dataset.qrCarnet)}`, '_blank'); closeQrMenus(); }));
+    hydrateQrThumbnails(filtered);
   }
 
   function renderForm() {
@@ -412,6 +475,7 @@
             <p style="font-size:12px;color:#5a6b7a;word-break:break-all;margin:0 0 14px;">${esc(perfilHref)}</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
               ${S.savedQr ? `<a href="${esc(S.savedQr)}" download="QR-${esc(r.cedula)}.png" style="background:#0a97b0;color:#fff;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Descargar QR</a>` : ''}
+              <a href="carnet.html?cc=${encodeURIComponent(r.cedula)}" target="_blank" style="background:#f8f8f9;color:#04233b;border:1px solid #dddddd;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Abrir carnet para imprimir</a>
               <a href="${esc(perfilHref)}" target="_blank" style="background:#f8f8f9;color:#04233b;border:1px solid #dddddd;border-radius:4px;padding:10px 16px;font-size:12px;font-weight:700;text-transform:uppercase;text-decoration:none;">Ver credencial pública</a>
             </div>
           </div>
