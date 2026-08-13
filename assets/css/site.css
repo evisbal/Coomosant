@@ -75,13 +75,13 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: #8fd7e2;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
 }
+.site-footer .contact-icon svg { width: 15px; height: 15px; }
 .site-footer .contact-row a,
 .site-footer .contact-row span.contact-text { color: #fff; font-size: 14px; }
 
