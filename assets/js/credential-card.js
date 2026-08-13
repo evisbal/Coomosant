@@ -10,6 +10,7 @@ const TEMA = {
     ringColor: '#0a97b0', badgeBg: '#dff1f4', badgeBorder: '#0a97b0', badgeTxt: '#04233b',
     badgeLabel: 'Afiliado Activo', dotColor: '#0a97b0', dotAnim: 'cm-pulse 2s infinite',
     nombreColor: '#04233b', nombreDecoration: 'none',
+    subtitulo: 'Afiliado a Coomosant · Santa Marta',
     selloBg: 'linear-gradient(135deg,#dff1f4,#c3e6ec)', selloBorder: '#0a97b0', selloIcon: '✅',
     selloTitulo: 'Miembro Verificado', selloTitleColor: '#04233b',
     selloSub: 'Información oficial · Coomosant', selloSubColor: '#0a5f74',
@@ -21,6 +22,7 @@ const TEMA = {
     ringColor: '#F59E0B', badgeBg: '#FDECC8', badgeBorder: '#F59E0B', badgeTxt: '#7A4B00',
     badgeLabel: 'Suspendido Temporalmente', dotColor: '#F59E0B', dotAnim: 'none',
     nombreColor: '#7A4B00', nombreDecoration: 'none',
+    subtitulo: 'Afiliado a Coomosant · Santa Marta',
     selloBg: 'linear-gradient(135deg,#FFF3D6,#FDECC8)', selloBorder: '#F59E0B', selloIcon: '⏳',
     selloTitulo: 'Membresía Suspendida', selloTitleColor: '#7A4B00',
     selloSub: 'Temporalmente fuera de servicio', selloSubColor: '#8A5A00',
@@ -33,6 +35,7 @@ const TEMA = {
     ringColor: '#C0392B', badgeBg: '#F8D7D7', badgeBorder: '#C0392B', badgeTxt: '#7B1313',
     badgeLabel: 'Afiliado Inactivo', dotColor: '#C0392B', dotAnim: 'none',
     nombreColor: '#7B1313', nombreDecoration: 'line-through',
+    subtitulo: 'No afiliado a Coomosant · Santa Marta',
     selloBg: 'linear-gradient(135deg,#F8D7D7,#F3B8B8)', selloBorder: '#C0392B', selloIcon: '🚫',
     selloTitulo: 'Membresía Cancelada', selloTitleColor: '#7B1313',
     selloSub: 'Ya no pertenece a Coomosant', selloSubColor: '#7B1313',
@@ -79,7 +82,7 @@ export function cardHtml(afiliado, qrHtml, fmtCedula, tipoLabel) {
           <span>${t.badgeLabel}</span>
         </div>
         <h2 style="font-weight:800;font-size:26px;line-height:1.2;color:${t.nombreColor};margin:0 0 6px;text-decoration:${t.nombreDecoration};text-transform:uppercase;">${esc(afiliado.nombre.toUpperCase())}</h2>
-        <p style="font-size:14px;color:#5a6b7a;margin:0 0 24px;">Afiliado a Coomosant · Santa Marta</p>
+        <p style="font-size:14px;color:#5a6b7a;margin:0 0 24px;">${t.subtitulo}</p>
         <hr style="border:none;border-top:1px solid #e5e9eb;margin:0 0 24px;" />
         <div style="display:flex;align-items:flex-start;gap:12px;text-align:left;margin-bottom:16px;">
           <div style="width:44px;height:44px;background:#f8f8f9;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid #e5e9eb;">🪪</div>
