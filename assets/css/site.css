@@ -4,8 +4,9 @@
 /* ---------- Header / nav ---------- */
 .site-header { background: #fff; padding: 16px 24px; position: relative; }
 .site-nav { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.site-nav .logo-link { display: flex; align-items: center; flex-shrink: 0; }
+.site-nav .logo-link { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .site-nav .logo-link img { height: 52px; width: auto; object-fit: contain; }
+.site-nav .logo-link .logo-text { font-weight: 800; font-size: 20px; letter-spacing: 0.5px; color: #04233b; }
 
 .nav-toggle {
   display: none;
