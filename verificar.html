@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Verificar carnet — Coomosant</title>
+<link rel="icon" type="image/png" href="assets/logo.png"/>
+<meta name="description" content="Verificá si una persona es un afiliado activo de Coomosant escribiendo su cédula o escaneando el código QR de su carnet."/>
+<meta name="robots" content="index, follow"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Open Sans', sans-serif; color: #0c0c0c; line-height: 1.7; }
+  a { color: #0a97b0; text-decoration: none; }
+  a:hover { color: #065968; }
+  input, button { font-family: 'Open Sans', sans-serif; }
+  .btn { display: inline-block; background: #0a97b0; color: #fff; padding: 14px 32px; font-weight: 700; text-transform: uppercase; font-size: 14px; border-radius: 4px; border: none; cursor: pointer; }
+  .btn:hover { background: #065968; color: #fff; }
+</style>
+</head>
+<body>
+
+<header style="background:#fff;padding:16px 24px;">
+  <nav style="max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+    <a href="index.html" style="display:flex;align-items:center;">
+      <img src="assets/logo.png" alt="Coomosant" style="height:52px;width:auto;object-fit:contain;" />
+    </a>
+    <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:center;">
+      <a href="index.html" style="color:#04233b;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Inicio</a>
+      <a href="nosotros.html" style="color:#04233b;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Nosotros</a>
+      <a href="verificar.html" style="color:#0a97b0;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Verificar carnet</a>
+      <a href="index.html#contacto" style="color:#04233b;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;">Contacto</a>
+      <a href="admin.html" style="background:#0a97b0;color:#fff;padding:9px 20px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;border-radius:4px;">👤 Ingresar</a>
+    </div>
+  </nav>
+</header>
+
+<section style="position:relative;background:#04233b;padding:70px 24px;color:#fff;">
+  <div style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:48px;align-items:center;">
+    <div>
+      <h1 style="font-weight:800;text-transform:uppercase;font-size:clamp(26px,4.5vw,38px);line-height:1.2;margin:0 0 16px;">Verifica un <span style="color:#8fd7e2;">carnet de Coomosant</span></h1>
+      <p style="font-size:15px;margin:0;color:#dbe6ec;">Si tenés el carnet físico frente a vos, lo más rápido es escanear el código QR con la cámara del celular — te lleva directo al perfil. Si no podés escanearlo, escribí la cédula acá abajo.</p>
+    </div>
+    <div>
+      <form id="form-verificar" style="background:#fff;border-radius:6px;padding:26px;box-shadow:0 12px 32px rgba(0,0,0,0.25);">
+        <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#0a97b0;margin-bottom:8px;">Cédula del afiliado</label>
+        <div style="display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;">
+          <input type="text" id="cedula-buscar" inputmode="numeric" placeholder="Ej: 1085234567" style="background:#f8f8f9;border:1px solid #dddddd;border-radius:4px;flex:1;min-width:180px;outline:none;color:#000;min-height:46px;padding-left:15px;font-size:14px;" />
+          <button type="submit" style="flex-shrink:0;background:#0a97b0;color:#fff;border:none;border-radius:4px;font-size:14px;text-transform:uppercase;font-weight:700;padding:0 24px;min-height:46px;cursor:pointer;">Verificar</button>
+        </div>
+        <p id="form-error" style="display:none;color:#C0392B;font-size:13px;margin:10px 0 0;">Escribí una cédula válida (solo números).</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section style="padding:80px 24px 40px;">
+  <div style="max-width:1180px;margin:0 auto;">
+    <div style="max-width:640px;margin-bottom:40px;">
+      <h2 style="font-weight:800;text-transform:uppercase;font-size:clamp(24px,4vw,34px);margin:0;color:#04233b;">¿Por qué <span style="color:#0a97b0;">verificar?</span></h2>
+      <p style="margin-top:10px;color:#5a6b7a;font-size:15px;">Un carnet se puede falsificar. El código QR no — cada vez que lo escaneás, consulta el estado real del afiliado en ese momento, no una foto vieja de una tarjeta.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:24px;">
+      <div style="display:flex;gap:20px;background:#f8f8f9;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;">🛡️</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Tu seguridad primero</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Confirmá que quien te visita es realmente un afiliado activo, y no alguien que se puso un uniforme parecido.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#f8f8f9;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;">📋</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Afiliados con respaldo real</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Cada afiliado pasó por registro, verificación de identidad y aceptó nuestro reglamento interno antes de recibir su carnet.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#f8f8f9;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;">🚫</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Evita impostores</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Un carnet de papel se falsifica fácil. El QR consulta la base de datos real en el instante en que lo escaneás.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#f8f8f9;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;">❤️</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Cuida a tu familia</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Es un hábito de diez segundos que le da tranquilidad a quien abre la puerta o sube a la moto.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:40px 24px 90px;background:#f8f8f9;">
+  <div style="max-width:1180px;margin:0 auto;">
+    <div style="max-width:600px;margin-bottom:40px;">
+      <h2 style="font-weight:800;text-transform:uppercase;font-size:clamp(24px,4vw,34px);margin:0;color:#04233b;">Cómo <span style="color:#0a97b0;">funciona</span></h2>
+      <p style="margin-top:10px;color:#5a6b7a;font-size:15px;">Cuatro pasos para confirmar que estás recibiendo el servicio de un afiliado real.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:24px;">
+      <div style="display:flex;gap:20px;background:#fff;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;">1</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Solicita el carnet</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">El afiliado te muestra su carnet oficial de Coomosant con foto y código QR personal.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#fff;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;">2</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Escanea el QR</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Abre la cámara de tu celular y apunta al código. Se abrirá el perfil automáticamente — o escribí la cédula arriba.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#fff;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;">3</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Verifica el perfil</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Compara la foto y el nombre con la persona frente a ti. El estado debe decir Activo.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;background:#fff;padding:26px 22px;border-radius:5px;">
+        <span style="flex-shrink:0;width:48px;height:48px;border-radius:50%;background:#0a97b0;color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;">4</span>
+        <div>
+          <h5 style="font-weight:700;text-transform:uppercase;font-size:15px;margin:0 0 8px;color:#04233b;">Recibe el servicio</h5>
+          <p style="font-size:14px;color:#5a6b7a;margin:0;">Con el perfil verificado, recibes tu domicilio o carrera con total confianza.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#04233b;color:#fff;padding:50px 24px 18px;">
+  <div style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:30px;">
+    <div>
+      <h4 style="font-weight:700;margin:0 0 18px;font-size:15px;">Dirección</h4>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a href="#" style="color:#fff;font-size:14px;">📍 Santa Marta, Magdalena</a>
+        <a href="tel:+573000000000" style="color:#fff;font-size:14px;">📞 +57 300 000 0000</a>
+        <a href="mailto:contacto@coomosant.org" style="color:#fff;font-size:14px;">✉ contacto@coomosant.org</a>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-weight:700;margin:0 0 18px;font-size:15px;">Información</h4>
+      <p style="font-size:14px;color:#dbe6ec;margin:0;">Coomosant es la cooperativa oficial de domiciliarios y mototaxistas de Santa Marta. Todos nuestros afiliados portan un carnet verificable en línea.</p>
+    </div>
+    <div>
+      <h4 style="font-weight:700;margin:0 0 18px;font-size:15px;">Enlaces</h4>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <a href="index.html" style="color:#fff;font-size:14px;">Inicio</a>
+        <a href="nosotros.html" style="color:#fff;font-size:14px;">Nosotros</a>
+        <a href="verificar.html" style="color:#fff;font-size:14px;">Verificar carnet</a>
+        <a href="index.html#contacto" style="color:#fff;font-size:14px;">Contacto</a>
+        <a href="admin.html" style="color:#fff;font-size:14px;">Ingresar (Admin)</a>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-weight:700;margin:0 0 18px;font-size:15px;">Horario de atención</h4>
+      <p style="font-size:14px;color:#dbe6ec;margin:0;">Lunes a Viernes<br />8:00 a.m. – 5:00 p.m.</p>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;text-align:center;padding:22px 20px;">
+  <p style="color:#04233b;margin:0;font-size:13px;">© 2026 Coomosant · Santa Marta, Magdalena. Todos los derechos reservados.</p>
+</section>
+
+<script>
+  document.getElementById('form-verificar').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var cc = document.getElementById('cedula-buscar').value.replace(/\D/g, '');
+    var err = document.getElementById('form-error');
+    if (cc) { location.href = 'perfil.html?cc=' + cc; }
+    else { err.style.display = 'block'; }
+  });
+</script>
+</body>
+</html>
