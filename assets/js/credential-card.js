@@ -11,7 +11,7 @@ const TEMA = {
     badgeLabel: 'Afiliado Activo', dotColor: '#0a97b0', dotAnim: 'cm-pulse 2s infinite',
     nombreColor: '#04233b', nombreDecoration: 'none',
     subtitulo: 'Afiliado a Coomosant · Santa Marta',
-    selloBg: 'linear-gradient(135deg,#dff1f4,#c3e6ec)', selloBorder: '#0a97b0', selloIcon: '✅',
+    selloBg: 'linear-gradient(135deg,#dff1f4,#c3e6ec)', selloBorder: '#0a97b0',
     selloTitulo: 'Miembro Verificado', selloTitleColor: '#04233b',
     selloSub: 'Información oficial · Coomosant', selloSubColor: '#0a5f74',
     aviso: null,
@@ -23,7 +23,7 @@ const TEMA = {
     badgeLabel: 'Suspendido Temporalmente', dotColor: '#F59E0B', dotAnim: 'none',
     nombreColor: '#7A4B00', nombreDecoration: 'none',
     subtitulo: 'Afiliado a Coomosant · Santa Marta',
-    selloBg: 'linear-gradient(135deg,#FFF3D6,#FDECC8)', selloBorder: '#F59E0B', selloIcon: '⏳',
+    selloBg: 'linear-gradient(135deg,#FFF3D6,#FDECC8)', selloBorder: '#F59E0B',
     selloTitulo: 'Membresía Suspendida', selloTitleColor: '#7A4B00',
     selloSub: 'Temporalmente fuera de servicio', selloSubColor: '#8A5A00',
     aviso: { bg: '#FFF3D6', border: '#F59E0B', txt: '#7A4B00',
@@ -36,7 +36,7 @@ const TEMA = {
     badgeLabel: 'Afiliado Inactivo', dotColor: '#C0392B', dotAnim: 'none',
     nombreColor: '#7B1313', nombreDecoration: 'line-through',
     subtitulo: 'No afiliado a Coomosant · Santa Marta',
-    selloBg: 'linear-gradient(135deg,#F8D7D7,#F3B8B8)', selloBorder: '#C0392B', selloIcon: '🚫',
+    selloBg: 'linear-gradient(135deg,#F8D7D7,#F3B8B8)', selloBorder: '#C0392B',
     selloTitulo: 'Membresía Cancelada', selloTitleColor: '#7B1313',
     selloSub: 'Ya no pertenece a Coomosant', selloSubColor: '#7B1313',
     aviso: { bg: '#FDE8E8', border: '#C0392B', txt: '#7B1313',
@@ -54,6 +54,16 @@ function esc(str) {
   }[c]));
 }
 
+// Íconos SVG en línea (trazo 2px, currentColor) — reemplazan a los emoji
+// que se usaban antes, mismo lenguaje visual que el resto del sitio.
+const ICON_USER = '<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+const ICON_ID_CARD = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>';
+const ICON_TAG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></svg>';
+const ICON_CHECK_CIRCLE = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+const ICON_CLOCK = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+const ICON_BAN = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>';
+const SELLO_ICON = { activo: ICON_CHECK_CIRCLE, suspendido: ICON_CLOCK, inactivo: ICON_BAN };
+
 // afiliado: { nombre, cedula, tipoServicio, estado, foto } — campos ya
 // "de presentación" (nombreMayus/cedulaFmt/tipoServicioLabel opcionales; si
 // no vienen, se calculan acá). qrHtml: markup del <img> del QR ya generado
@@ -62,7 +72,7 @@ export function cardHtml(afiliado, qrHtml, fmtCedula, tipoLabel) {
   const t = tema(afiliado.estado);
   const fotoHtml = afiliado.foto
     ? `<img src="${esc(afiliado.foto)}" alt="Foto del afiliado" style="width:100%;height:100%;object-fit:cover;display:block;" />`
-    : '👤';
+    : `<span style="color:#b8c4ca;display:flex;">${ICON_USER}</span>`;
   const avisoHtml = t.aviso ? `
       <div style="margin-top:16px;background:${t.aviso.bg};border-left:5px solid ${t.aviso.border};border-radius:4px;padding:14px 16px;text-align:left;">
         <p style="font-size:14px;color:${t.aviso.txt};line-height:1.6;margin:0;">${esc(t.aviso.texto)}</p>
@@ -85,14 +95,14 @@ export function cardHtml(afiliado, qrHtml, fmtCedula, tipoLabel) {
         <p style="font-size:14px;color:#5a6b7a;margin:0 0 24px;">${t.subtitulo}</p>
         <hr style="border:none;border-top:1px solid #e5e9eb;margin:0 0 24px;" />
         <div style="display:flex;align-items:flex-start;gap:12px;text-align:left;margin-bottom:16px;">
-          <div style="width:44px;height:44px;background:#f8f8f9;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid #e5e9eb;">🪪</div>
+          <div style="width:44px;height:44px;background:#f8f8f9;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#0a97b0;flex-shrink:0;border:1px solid #e5e9eb;">${ICON_ID_CARD}</div>
           <div>
             <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#0a97b0;margin:0 0 2px;">Cédula de ciudadanía</p>
             <p style="font-size:17px;font-weight:600;color:#0D0D0D;margin:0;">${fmtCedula(afiliado.cedula)}</p>
           </div>
         </div>
         <div style="display:flex;align-items:flex-start;gap:12px;text-align:left;margin-bottom:16px;">
-          <div style="width:44px;height:44px;background:#f8f8f9;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid #e5e9eb;">🏍️</div>
+          <div style="width:44px;height:44px;background:#f8f8f9;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#0a97b0;flex-shrink:0;border:1px solid #e5e9eb;">${ICON_TAG}</div>
           <div>
             <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#0a97b0;margin:0 0 2px;">Tipo de servicio</p>
             <p style="font-size:17px;font-weight:600;color:#0D0D0D;margin:0;">${esc(tipoLabel(afiliado.tipoServicio))}</p>
@@ -103,7 +113,7 @@ export function cardHtml(afiliado, qrHtml, fmtCedula, tipoLabel) {
           <div style="width:148px;height:148px;margin:0 auto;border:2px solid #04233b;border-radius:4px;overflow:hidden;background:#f8f8f9;display:flex;align-items:center;justify-content:center;">${qrHtml}</div>
         </div>
         <div style="margin-top:22px;background:${t.selloBg};border:1.5px solid ${t.selloBorder};border-radius:4px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-          <span style="font-size:26px;flex-shrink:0;">${t.selloIcon}</span>
+          <span style="flex-shrink:0;color:${t.selloTitleColor};display:flex;">${SELLO_ICON[afiliado.estado] || ICON_CHECK_CIRCLE}</span>
           <div>
             <p style="font-weight:800;font-size:16px;color:${t.selloTitleColor};margin:0;text-transform:uppercase;">${t.selloTitulo}</p>
             <p style="font-size:13px;color:${t.selloSubColor};margin:1px 0 0;">${t.selloSub}</p>

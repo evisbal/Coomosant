@@ -51,7 +51,7 @@
   }
 
   function renderMissing(msg) {
-    render(`<main class="skeleton">⚠️ ${esc(msg)}</main>`);
+    render(`<main class="skeleton" style="display:flex;align-items:center;justify-content:center;gap:8px;color:#C0392B;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>${esc(msg)}</span></main>`);
   }
 
   async function init() {
@@ -86,7 +86,10 @@
     // siempre consulta el estado real en el momento de escanear.
     render(`
       <main class="skeleton" style="max-width:460px;">
-        <div class="aviso-vivo">⚠️ Esta vista es solo de consulta. No la imprimas ni la guardes como documento — el estado cambia con el tiempo y un carnet exportado queda desactualizado. La verificación válida es siempre escanear el QR.</div>
+        <div class="aviso-vivo" style="display:flex;align-items:flex-start;gap:10px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;margin-top:1px;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Esta vista es solo de consulta. No la imprimas ni la guardes como documento — el estado cambia con el tiempo y un carnet exportado queda desactualizado. La verificación válida es siempre escanear el QR.</span>
+        </div>
         ${cardHtml(afiliado, qrHtml, fmtCedula, tipoLabel)}
       </main>`);
   }
