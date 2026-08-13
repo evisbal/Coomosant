@@ -371,7 +371,7 @@
         </div>
 
         ${filtered.length > 0
-          ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">${cards}</div>`
+          ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px;">${cards}</div>`
           : `<p style="text-align:center;color:#5a6b7a;font-size:14px;padding:40px 0;">${S.busy ? 'Cargando…' : 'No hay afiliados que coincidan con la búsqueda.'}</p>`}
       </div>`;
 
